@@ -1,0 +1,2 @@
+"NSAudioCaptureUsageDescription" = "将所选应用的音频发送到所选输出设备。";
+"NSAppleEventsUsageDescription" = "读取 Apple Music 当前曲目的采样率，以调整输出设备。";

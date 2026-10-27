@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key><string>local.tools.AudioFlow</string>
+  <key>CFBundleName</key><string>AudioFlow</string>
+  <key>CFBundleDisplayName</key><string>AudioFlow</string>
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleLocalizations</key><array><string>en</string><string>zh-Hans</string></array>
+  <key>CFBundleExecutable</key><string>AudioFlow</string>
+  <key>CFBundleShortVersionString</key><string>1.0.0</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>LSMinimumSystemVersion</key><string>15.0</string>
+  <key>NSAudioCaptureUsageDescription</key><string>Route the selected app's audio to the selected output device.</string>
+  <key>NSAppleEventsUsageDescription</key><string>Read the current Apple Music track to adjust the output device's sample rate.</string>
+  <key>NSHighResolutionCapable</key><true/>
+</dict></plist>

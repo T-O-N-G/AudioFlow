@@ -1,0 +1,2 @@
+"NSAudioCaptureUsageDescription" = "Route the selected app's audio to the selected output device.";
+"NSAppleEventsUsageDescription" = "Read the current Apple Music track to adjust the output device's sample rate.";
