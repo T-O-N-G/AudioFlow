@@ -28,6 +28,12 @@ Download the macOS DMG from [Releases](../../releases), open it, and drag AudioF
 - Routing uses a Core Audio process tap and PCM output, so strict bit-perfect playback is not guaranteed.
 - The interface supports Simplified Chinese and English and follows the language selected for AudioFlow in macOS. Restart the app after changing its language.
 
+To launch the installed app in Simplified Chinese for one session without changing macOS settings:
+
+```sh
+open -n -a /Applications/AudioFlow.app --args -AppleLanguages '(zh-Hans)'
+```
+
 ### Build
 
 Requires macOS 15 or later and the Swift 6 command line tools:
@@ -61,6 +67,12 @@ AudioFlow 是一个原生 macOS 应用，主要用途是**只把 Apple Music 的
 - 首次路由可能需要授予“屏幕与系统音频录制”权限；读取 Music 曲目可能需要授予“自动化”权限。
 - 路由通过 Core Audio 进程 tap 和 PCM 输出实现，不保证严格意义上的 bit-perfect。
 - 界面提供简体中文和英文，跟随 macOS 为 AudioFlow 选定的语言；更改语言后需重启应用。
+
+若只想让本次启动使用简体中文，而不更改 macOS 设置：
+
+```sh
+open -n -a /Applications/AudioFlow.app --args -AppleLanguages '(zh-Hans)'
+```
 
 ### 构建
 
