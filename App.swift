@@ -534,82 +534,116 @@ private func loggedSampleRate(_ line: String) -> Double? {
     }
 }
 
+private struct AudioCardStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            configuration.label
+                .font(.system(.subheadline, design: .default).weight(.semibold))
+                .foregroundStyle(.secondary)
+            configuration.content
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.primary.opacity(0.055)))
+    }
+}
+
 private struct ContentView: View {
     @StateObject private var model = AudioModel()
 
+    private let accent = Color(red: 0.32, green: 0.83, blue: 0.73)
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(spacing: 12) {
-                Image(systemName: "waveform.path")
-                    .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(.tint)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("AudioFlow").font(.title2.bold())
-                    Text(l("subtitle"))
-                        .font(.subheadline).foregroundStyle(.secondary)
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 28) {
+                HStack(spacing: 10) {
+                    Image(systemName: "waveform.path").font(.title2).foregroundStyle(accent)
+                    Text("AudioFlow").font(.system(size: 23, weight: .semibold, design: .rounded))
                 }
-                Spacer()
-                Button { model.refresh() } label: { Image(systemName: "arrow.clockwise") }
-                    .help(l("refresh_help"))
+                Spacer(minLength: 0)
+                ZStack {
+                    Circle().stroke(accent.opacity(0.08), lineWidth: 1).frame(width: 210, height: 210)
+                    Circle().stroke(accent.opacity(0.16), lineWidth: 1).frame(width: 164, height: 164)
+                    Image(systemName: model.routing ? "waveform" : "hifispeaker.fill")
+                        .font(.system(size: 64, weight: .ultraLight)).foregroundStyle(accent)
+                }.frame(maxWidth: .infinity)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(l("current_format")).font(.caption).foregroundStyle(.white.opacity(0.55))
+                    Text(model.deviceRate).font(.system(size: 37, weight: .light, design: .rounded))
+                        .monospacedDigit().foregroundStyle(accent)
+                    Text(model.device?.name ?? "—").font(.subheadline).foregroundStyle(.white.opacity(0.75))
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 0)
+                Label(model.routeStatus, systemImage: model.routing ? "circle.fill" : "circle")
+                    .font(.caption).foregroundStyle(model.routing ? accent : .white.opacity(0.55))
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(30).frame(width: 280)
+            .frame(maxHeight: .infinity)
+            .foregroundStyle(.white)
+            .background(LinearGradient(colors: [Color(red: 0.08, green: 0.17, blue: 0.20), Color(red: 0.04, green: 0.09, blue: 0.13)], startPoint: .topLeading, endPoint: .bottomTrailing))
 
-            GroupBox(l("output")) {
-                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-                    GridRow {
-                        Text(l("device")).frame(width: 108, alignment: .trailing)
-                        Picker(l("device"), selection: $model.selectedDevice) {
-                            ForEach(model.devices) { device in Text(device.name).tag(device.id) }
-                        }.labelsHidden().frame(maxWidth: .infinity)
-                            .disabled(model.routing || model.following || model.maximumBitDepth)
+            VStack(alignment: .leading, spacing: 24) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(l("app_routing")).font(.system(size: 26, weight: .semibold))
+                        Text(l("subtitle")).font(.subheadline).foregroundStyle(.secondary)
                     }
-                    GridRow {
-                        Text(l("current_format")).frame(width: 108, alignment: .trailing)
-                        Text(model.deviceRate).foregroundStyle(.secondary)
-                    }
-                }.padding(8)
-            }
-
-            GroupBox(l("app_routing")) {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text(l("app")).frame(width: 72, alignment: .trailing)
+                    Spacer()
+                    Button { model.refresh() } label: { Image(systemName: "arrow.clockwise") }
+                        .buttonStyle(.borderless).help(l("refresh_help"))
+                }
+                VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(l("app"), systemImage: "music.note").font(.caption).foregroundStyle(.secondary)
                         Picker(l("app"), selection: $model.selectedApp) {
                             ForEach(model.apps) { app in Text(app.name).tag(app.id) }
                         }.labelsHidden().disabled(model.routing)
-                        Button(model.routing ? l("stop_routing") : l("start_routing")) { model.toggleRoute() }
-                            .disabled(model.app == nil || model.device == nil || model.switchingRate)
                     }
-                    Label(model.routeStatus, systemImage: model.routing ? "waveform" : "speaker.wave.2")
-                        .font(.caption).foregroundStyle(.secondary)
-                }.padding(8)
-            }
+                    HStack { Spacer(); Image(systemName: "arrow.down").foregroundStyle(.tertiary); Spacer() }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(l("device"), systemImage: "hifispeaker").font(.caption).foregroundStyle(.secondary)
+                        Picker(l("device"), selection: $model.selectedDevice) {
+                            ForEach(model.devices) { device in Text(device.name).tag(device.id) }
+                        }.labelsHidden().disabled(model.routing || model.following || model.maximumBitDepth)
+                    }
+                    Button { model.toggleRoute() } label: {
+                        HStack {
+                            Image(systemName: model.routing ? "stop.fill" : "play.fill")
+                            Text(model.routing ? l("stop_routing") : l("start_routing"))
+                        }.frame(maxWidth: .infinity).padding(.vertical, 5)
+                    }.buttonStyle(.borderedProminent)
+                        .disabled(model.app == nil || model.device == nil || model.switchingRate)
+                }.padding(22)
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 18))
 
-            GroupBox(l("output_format")) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle(l("follow_rate"), isOn: Binding(
-                        get: { model.following },
-                        set: { _ in model.toggleFollow() }
-                    )).disabled(model.device == nil || model.switchingRate)
-                    Text(l("current_track", model.trackRate)).font(.caption).foregroundStyle(.secondary)
-                    Text(model.rateStatus).font(.caption).foregroundStyle(.secondary)
-                    Text(l("sample_rate_note"))
-                        .font(.caption).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 18) {
+                    Text(l("output_format")).font(.headline)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle(l("follow_rate"), isOn: Binding(get: { model.following }, set: { _ in model.toggleFollow() }))
+                            .disabled(model.device == nil || model.switchingRate)
+                        Text(l("current_track", model.trackRate)).font(.caption).foregroundStyle(.secondary)
+                        Text(model.rateStatus).font(.caption).foregroundStyle(.secondary)
+                        Text(l("sample_rate_note")).font(.caption).foregroundStyle(.secondary)
+                    }
                     Divider()
-                    Toggle(l("maximum_bit_depth"), isOn: Binding(
-                        get: { model.maximumBitDepth },
-                        set: { _ in model.toggleMaximumBitDepth() }
-                    )).disabled(model.device == nil || model.switchingRate)
-                    Text(model.bitDepthStatus).font(.caption).foregroundStyle(.secondary)
-                    Text(l("bit_depth_note"))
-                        .font(.caption).foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }.padding(8).toggleStyle(.switch)
-            }
-            Spacer(minLength: 0)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle(l("maximum_bit_depth"), isOn: Binding(get: { model.maximumBitDepth }, set: { _ in model.toggleMaximumBitDepth() }))
+                            .disabled(model.device == nil || model.switchingRate)
+                        Text(model.bitDepthStatus).font(.caption).foregroundStyle(.secondary)
+                        Text(l("bit_depth_note")).font(.caption).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }.toggleStyle(.switch)
+                Spacer(minLength: 0)
+            }.padding(32).frame(width: 500)
         }
-        .padding(24)
-        .frame(width: 520, height: 550)
+        .frame(width: 780, height: 700)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .tint(Color(red: 0.16, green: 0.46, blue: 0.44))
+        .controlSize(.large)
         .onAppear { model.start() }
         .onDisappear { model.shutdown() }
         .alert("AudioFlow", isPresented: Binding(get: { model.lastError != nil }, set: { if !$0 { model.lastError = nil } })) {
